@@ -1,7 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:layout/pages/detail.dart';
+import 'package:http/http.dart' as http;
+import 'dart:async';
 
 class HomePage extends StatefulWidget {
   // const HomePage({ Key? key }) : super(key: key);
@@ -15,21 +16,25 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("ความรู้เกี่ยวกับคอมพิวเตอร์"),
+          title: Text("ความรู้เกี่ยวกับวิศวกรรมซอฟต์แวร์"),
         ),
         body: Padding(
           padding: EdgeInsets.all(20),
-          child: FutureBuilder(builder: (context, snapshot) {
-            var data = json.decode(snapshot.data.toString());// [{คอม
+          child: FutureBuilder(builder: (context, AsyncSnapshot snapshot) {
+            //var data = json.decode(snapshot.data.toString());// [{คอม data ในเครื่อง
+
             return ListView.builder(
               itemBuilder: (BuildContext context, int index) {
-                return MyBox(data[index]['title'], data[index]['subtitle'], data[index]['image_url'], data[index]['detail']);
+                return MyBox(snapshot.data[index]['title'], snapshot.data[index]['subtitle'], snapshot.data[index]['image_url'], snapshot.data[index]['detail']);
               
               },//หลังจากแก้หน้า detail.dart
-              itemCount: data.length, );
+              itemCount: snapshot.data.length, );
 
           },
-          future: DefaultAssetBundle.of(context).loadString('assets/data.json'),
+          future: getData(),
+          //future: DefaultAssetBundle.of(context).loadString('assets/data.json'),
+          
+          
           )
           ),
         );
@@ -79,4 +84,18 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+
+  Future getData() async {
+    //new code for 2021
+    //https://raw.githubusercontent.com/wantanasisomboon/BasicAPI/main/layout/assets/data.json
+    var url = Uri.https('raw.githubusercontent.com' ,'/wantanasisomboon/BasicAPI/main/layout/assets/data.json' );
+    var response = await http.get(url); //คู่กับ async รอ request ให้จบ
+    var result = json.decode(response.body);
+    return result;
+
+  }
+
+
+
 }
